@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpinev
+FROM openjdk:8-jdk-alpine
 
 WORKDIR /image-working-directory
 
