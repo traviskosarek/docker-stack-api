@@ -19,7 +19,7 @@ import docker.api.container.Container;
 @RestController
 public class DockerApiController {
 
-    @RequestMapping("/api/services")
+    @RequestMapping("/services")
     public ResponseEntity<Swarm> swarm() {
         try {
 

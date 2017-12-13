@@ -39,7 +39,7 @@ public class DockerApiControllerTests {
     @Test
     public void noParamGreetingShouldReturnDefaultMessage() throws Exception {
 
-        this.mockMvc.perform(get("/api/services")).andDo(print()).andExpect(status().isOk());
+        this.mockMvc.perform(get("/services")).andDo(print()).andExpect(status().isOk());
     }
 
     // @Test
