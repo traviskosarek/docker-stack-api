@@ -49,7 +49,12 @@ public class DockerApiController {
             return ResponseEntity.ok(swarm);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body(new Swarm(""));
+
+            Swarm emptyStack = new Swarm("");
+
+            emptyStack.setErrorMessage(e.toString());
+
+            return ResponseEntity.status(500).body(emptyStack);
         }
     }
 
