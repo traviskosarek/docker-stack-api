@@ -18,23 +18,17 @@ public class Swarm {
         return this.name;
     }
 
-    public String getMessage(){
-        if(this.name.equals("") || this.nodes.size() == 0){
-            if(this.errorMessage.equals(""))
-            {
-                return "Error retrieving Docker information";
-            }
-            else
-            {
-                return this.errorMessage;
-            }
-        }
-        else {
+    public String getMessage() {
+        if (!this.errorMessage.equals("")) {
+            return this.errorMessage;
+        } else if (this.name.equals("") || this.nodes.size() == 0) {
+            return "Error retrieving Docker information";
+        } else {
             return "";
         }
     }
 
-    public void setErrorMessage(String errorMessage){
+    public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 
