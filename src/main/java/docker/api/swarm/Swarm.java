@@ -8,11 +8,21 @@ public class Swarm {
     private ArrayList<Node> nodes;
 
     public Swarm(String name) {
-            this.name = name;
+        this.name = name;
+        this.nodes = new ArrayList<Node>();
     }
 
     public String swarmName() {
         return this.name;
+    }
+
+    public String getMessage(){
+        if(this.name.equals("") || this.nodes.size() == 0){
+            return "Error retrieving Docker information";
+        }
+        else {
+            return "";
+        }
     }
 
     public ArrayList<Node> getNodes() {
