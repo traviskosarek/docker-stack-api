@@ -13,6 +13,6 @@ RUN set -ex \
  && curl -fL "https://download.docker.com/linux/static/${DOCKER_CHANNEL}/`uname -m`/docker-${DOCKER_VERSION}.tgz" -o docker.tgz \
  && tar --extract --file docker.tgz --strip-components 1 --directory /usr/local/bin \
  && rm docker.tgz \
- && docker -
+ && docker -v
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
