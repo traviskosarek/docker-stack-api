@@ -103,6 +103,7 @@ public class DockerApiController {
     }
 
     protected ArrayList<Node> getNodes() throws Exception {
+        System.out.println("docker node ls --format \"{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}\"");
         ArrayList<String> output = this.getTerminalOutput(
                 "docker node ls --format \"{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}\"");
         ArrayList<Node> nodes = new ArrayList<Node>();
