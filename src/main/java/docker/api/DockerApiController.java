@@ -98,7 +98,7 @@ public class DockerApiController {
         String name = "";
 
         // String command = "docker stack ls --format '{{.Name}}'";
-        String[] command = {"docker", "stack", "ls", "--format", "'{{.Name}}'"};
+        String[] command = {"docker", "stack", "ls", "--format '{{.Name}}'"};
         ArrayList<String> output = this.getTerminalOutput(command);
 
         if (!output.isEmpty()) {
@@ -111,7 +111,7 @@ public class DockerApiController {
     protected ArrayList<Node> getNodes() throws Exception {
 
         // String command = "docker node ls --format '{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}'" ;
-        String[] command = {"docker", "node", "ls", "--format", "'{{.ID}}", "{{.Hostname}}", "{{.Status}}", "{{.Availability}}", "{{.ManagerStatus}}'"} ;
+        String[] command = {"docker", "node", "ls", "--format '{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}'"} ;
         ArrayList<String> output = this.getTerminalOutput(command);
 
         ArrayList<Node> nodes = new ArrayList<Node>();
@@ -131,7 +131,7 @@ public class DockerApiController {
 
         if (!swarmName.equals("")) {
             // String command = String.format("%s %s %s","docker stack services", swarmName, "--format '{{.ID}} {{.Mode}} {{.Replicas}} {{.Image}}'"); 
-            String[] command = {"docker", "stack", "services", swarmName, "--format", "'{{.ID}}", "{{.Mode}}", "{{.Replicas}}", "{{.Image}}'"}; 
+            String[] command = {"docker", "stack", "services", swarmName, "--format '{{.ID}} {{.Mode}} {{.Replicas}} {{.Image}}'"}; 
             ArrayList<String> output = this.getTerminalOutput(command);
 
             if (!output.isEmpty()) {
@@ -151,7 +151,7 @@ public class DockerApiController {
 
         if (!serviceID.equals("")) {
             // String command = String.format("%s %s %s","docker service ps", serviceID, "--format '{{.Name}} {{.Image}} {{.Node}} {{.CurrentState}}'");
-            String[] command = {"docker", "service", "ps", serviceID, "--format", "'{{.Name}}", "{{.Image}}", "{{.Node}}", "{{.CurrentState}}'"};
+            String[] command = {"docker", "service", "ps", serviceID, "--format '{{.Name}} {{.Image}} {{.Node}} {{.CurrentState}}'"};
             ArrayList<String> output = this.getTerminalOutput(command);
 
             ArrayList<String> alreadyFoundContainers = new ArrayList<String>();
