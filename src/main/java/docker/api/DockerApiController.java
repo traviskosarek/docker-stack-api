@@ -83,8 +83,7 @@ public class DockerApiController {
         if (errorOutput.size() > 0) {
             String message = command + " ";
 
-            for(String arg : arguments)
-            {
+            for (String arg : arguments) {
                 message = String.format("%s %s", message, arg);
             }
             message = String.format("%s **********", message);
@@ -105,7 +104,7 @@ public class DockerApiController {
         String name = "";
 
         String command = "docker stack ls";
-        String[] arguments = {"--format '{{.Name}}'"};
+        String[] arguments = { "--format '{{.Name}}'" };
         ArrayList<String> output = this.getTerminalOutput(command, arguments);
 
         if (!output.isEmpty()) {
@@ -116,9 +115,9 @@ public class DockerApiController {
     }
 
     protected ArrayList<Node> getNodes() throws Exception {
-        
+
         String command = "docker node ls";
-        String[] arguments = {"--format '{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}'"};
+        String[] arguments = { "--format '{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}'" };
         ArrayList<String> output = this.getTerminalOutput(command, arguments);
 
         ArrayList<Node> nodes = new ArrayList<Node>();
@@ -133,14 +132,13 @@ public class DockerApiController {
         return nodes;
     }
 
-    protected ArrayList<Service> getServices(String swarmName) throws Exception
-    {
+    protected ArrayList<Service> getServices(String swarmName) throws Exception {
         ArrayList<Service> services = new ArrayList<Service>();
 
         if (!swarmName.equals("")) {
 
             String command = String.format("%s %s", "docker stack services", swarmName);
-            String[] arguments = {"--format '{{.ID}} {{.Mode}} {{.Replicas}} {{.Image}}'"};
+            String[] arguments = { "--format '{{.ID}} {{.Mode}} {{.Replicas}} {{.Image}}'" };
             ArrayList<String> output = this.getTerminalOutput(command, arguments);
 
             if (!output.isEmpty()) {
@@ -156,24 +154,26 @@ public class DockerApiController {
 
     protected ArrayList<Container> getContainers(String serviceID) throws Exception {
 
-        String command = String.format("%s %s", "docker service ps", serviceID);
-        String[] arguments = {"--format '{{.Name}} {{.Image}} {{.Node}} {{.CurrentState}}'"};
-        ArrayList<String> output = this.getTerminalOutput(command, arguments);
-
-        ArrayList<String> alreadyFoundContainers = new ArrayList<String>();
         ArrayList<Container> containers = new ArrayList<Container>();
 
-        if (!output.isEmpty()) {
-            for (String line : output) {
-                String[] tokens = line.split(" ");
+        if (!serviceID.equals("")) {
+            String command = String.format("%s %s", "docker service ps", serviceID);
+            String[] arguments = { "--format '{{.Name}} {{.Image}} {{.Node}} {{.CurrentState}}'" };
+            ArrayList<String> output = this.getTerminalOutput(command, arguments);
 
-                if (!alreadyFoundContainers.contains(tokens[0])) {
-                    alreadyFoundContainers.add(tokens[0]);
-                    containers.add(new Container(tokens));
+            ArrayList<String> alreadyFoundContainers = new ArrayList<String>();
+
+            if (!output.isEmpty()) {
+                for (String line : output) {
+                    String[] tokens = line.split(" ");
+
+                    if (!alreadyFoundContainers.contains(tokens[0])) {
+                        alreadyFoundContainers.add(tokens[0]);
+                        containers.add(new Container(tokens));
+                    }
                 }
             }
         }
-
         return containers;
     }
 
