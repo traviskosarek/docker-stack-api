@@ -81,7 +81,9 @@ public class DockerApiController {
         p.waitFor();
 
         if (errorOutput.size() > 0) {
-            String message = "";
+            String message = command;
+            
+            message = String.format("%s **********", message);
             for (String line : output) {
                 message = String.format("%s *** %s", message, line);
             }
