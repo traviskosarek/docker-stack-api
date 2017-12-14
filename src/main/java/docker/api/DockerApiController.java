@@ -82,6 +82,10 @@ public class DockerApiController {
 
         if (errorOutput.size() > 0) {
             String message = "";
+            for (String line : output) {
+                message = String.format("%s *** %s", message, line);
+            }
+            message = String.format("%s **********", message);
             for (String line : errorOutput) {
                 message = String.format("%s\n%s", message, line);
             }
