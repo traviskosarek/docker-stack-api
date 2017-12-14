@@ -21,8 +21,6 @@ public class Swarm {
     public String getMessage() {
         if (!this.errorMessage.equals("")) {
             return this.errorMessage;
-        } else if (this.name.equals("") || this.nodes.size() == 0) {
-            return "Error retrieving Docker information";
         } else {
             return "";
         }

@@ -15,31 +15,46 @@
  */
 package docker.api;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.ArrayList;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import docker.api.container.Container;
+import docker.api.node.Node;
+import docker.api.service.Service;
+import docker.api.swarm.Swarm;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class DockerApiControllerTests {
-
-    @Autowired
-    private MockMvc mockMvc;
-
+public class DockerApiControllerTests
+{
     @Test
-    public void noParamGreetingShouldReturnDefaultMessage() throws Exception {
+    public void noParamGreetingShouldReturnDefaultMessage() throws Exception
+    {
+        DockerApiController dockerApiController = spy(DockerApiController.class);
+        doReturn(new Swarm("test")).when(dockerApiController).getSwarm();
+        doReturn(new ArrayList<Node>()).when(dockerApiController).getNodes();
+        doReturn(new ArrayList<Service>()).when(dockerApiController).getServices(Mockito.anyString());
+        doReturn(new ArrayList<Container>()).when(dockerApiController).getContainers(Mockito.anyString());
 
-        this.mockMvc.perform(get("/services")).andDo(print()).andExpect(status().isOk());
+        ResponseEntity<Swarm> swarm = dockerApiController.swarm();
+
+        assert(swarm.getStatusCode().is2xxSuccessful());
     }
 
     // @Test

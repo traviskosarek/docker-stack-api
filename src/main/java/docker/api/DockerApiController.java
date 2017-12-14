@@ -4,17 +4,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import docker.api.swarm.Swarm;
+import docker.api.container.Container;
 import docker.api.node.Node;
 import docker.api.service.Service;
-import docker.api.container.Container;
+import docker.api.swarm.Swarm;
 
 @RestController
 public class DockerApiController {
@@ -22,7 +20,6 @@ public class DockerApiController {
     @RequestMapping("/services")
     public ResponseEntity<Swarm> swarm() {
         try {
-
             Swarm swarm = this.getSwarm();
 
             ArrayList<Node> nodes = this.getNodes();
@@ -31,13 +28,12 @@ public class DockerApiController {
 
             for (Service service : services) {
                 containers.addAll(getContainers(service.getId()));
-            }   
+            }
 
             for (Node node : nodes) {
                 ArrayList<Container> nodeContainers = new ArrayList<Container>();
-                for (Container container : containers){
-
-                    if(container.hostNode().equals(node.getHostName())){
+                for (Container container : containers) {
+                    if (container.hostNode().equals(node.getHostName())) {
                         nodeContainers.add(container);
                     }
                 }
@@ -47,30 +43,34 @@ public class DockerApiController {
             swarm.setNodes(nodes);
 
             return ResponseEntity.ok(swarm);
+        } catch (CommandOutputException e) {
+            Swarm errorStack = new Swarm("");
+            errorStack.setErrorMessage(e.getMessage());
+            return ResponseEntity.status(500).body(errorStack);
         } catch (Exception e) {
-            e.printStackTrace();
-
-            Swarm emptyStack = new Swarm("");
-
-            emptyStack.setErrorMessage(e.toString());
-
-            return ResponseEntity.status(500).body(emptyStack);
+            Swarm errorStack = new Swarm("");
+            // "Error retrieving Docker information"
+            errorStack.setErrorMessage(e.getMessage());
+            return ResponseEntity.status(500).body(errorStack);
         }
     }
 
-    private ArrayList<String> getTerminalOutput(String command) throws Exception {
-
+    protected ArrayList<String> getTerminalOutput(String command) throws Exception {
         ArrayList<String> output = new ArrayList<String>();
+        ArrayList<String> errorOutput = new ArrayList<String>();
         final Process p = Runtime.getRuntime().exec(command);
 
         new Thread(new Runnable() {
             public void run() {
                 BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
+                BufferedReader error = new BufferedReader(new InputStreamReader(p.getErrorStream()));
                 try {
                     String line = null;
                     while ((line = input.readLine()) != null) {
                         output.add(line);
+                    }
+                    while ((line = error.readLine()) != null) {
+                        errorOutput.add(line);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -80,11 +80,18 @@ public class DockerApiController {
 
         p.waitFor();
 
+        if (errorOutput.size() > 0) {
+            String message = "";
+            for (String line : errorOutput) {
+                message = String.format("%s\n%s", message, line);
+            }
+            throw new CommandOutputException(message);
+        }
+
         return output;
     }
 
-    private Swarm getSwarm() throws Exception {
-
+    protected Swarm getSwarm() throws Exception {
         String name = "";
         ArrayList<String> output = this.getTerminalOutput("docker stack ls --format \"{{.Name}}\"");
 
@@ -95,8 +102,7 @@ public class DockerApiController {
         return new Swarm(name);
     }
 
-    private ArrayList<Node> getNodes() throws Exception {
-
+    protected ArrayList<Node> getNodes() throws Exception {
         ArrayList<String> output = this.getTerminalOutput(
                 "docker node ls --format \"{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}\"");
         ArrayList<Node> nodes = new ArrayList<Node>();
@@ -111,30 +117,30 @@ public class DockerApiController {
         return nodes;
     }
 
-    private ArrayList<Service> getServices(String swarmName) throws Exception {
-
-        String command = String.format("%s %s",
-                "docker stack services --format \"{{.ID}} {{.Mode}} {{.Replicas}} {{.Image}}\"",
-                swarmName);
-
-        ArrayList<String> output = this.getTerminalOutput(command);
+    protected ArrayList<Service> getServices(String swarmName) throws Exception
+    {
         ArrayList<Service> services = new ArrayList<Service>();
 
-        if (!output.isEmpty()) {
-            for (String line : output) {
-                String[] tokens = line.split(" ");
-                services.add(new Service(tokens));
+        if (!swarmName.equals("")) {
+
+            String command = String.format("%s %s",
+                    "docker stack services --format \"{{.ID}} {{.Mode}} {{.Replicas}} {{.Image}}\"", swarmName);
+
+            ArrayList<String> output = this.getTerminalOutput(command);
+
+            if (!output.isEmpty()) {
+                for (String line : output) {
+                    String[] tokens = line.split(" ");
+                    services.add(new Service(tokens));
+                }
             }
         }
 
         return services;
     }
 
-    private ArrayList<Container> getContainers(String serviceID) throws Exception{
-
-        String command = String.format("%s %s %s",
-                "docker service ps",
-                serviceID,
+    protected ArrayList<Container> getContainers(String serviceID) throws Exception {
+        String command = String.format("%s %s %s", "docker service ps", serviceID,
                 "--format \"{{.Name}} {{.Image}} {{.Node}} {{.CurrentState}}\"");
 
         ArrayList<String> output = this.getTerminalOutput(command);
@@ -145,7 +151,7 @@ public class DockerApiController {
             for (String line : output) {
                 String[] tokens = line.split(" ");
 
-                if(!alreadyFoundContainers.contains(tokens[0])){
+                if (!alreadyFoundContainers.contains(tokens[0])) {
                     alreadyFoundContainers.add(tokens[0]);
                     containers.add(new Container(tokens));
                 }
@@ -153,5 +159,13 @@ public class DockerApiController {
         }
 
         return containers;
+    }
+
+    protected class CommandOutputException extends Exception {
+        public static final long serialVersionUID = 93L;
+
+        public CommandOutputException(String message) {
+            super(message);
+        }
     }
 }
