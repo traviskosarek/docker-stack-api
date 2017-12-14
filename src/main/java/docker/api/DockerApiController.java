@@ -17,7 +17,7 @@ import docker.api.swarm.Swarm;
 @RestController
 public class DockerApiController {
 
-    @RequestMapping("/services")
+    @RequestMapping("/swarm")
     public ResponseEntity<Swarm> swarm() {
         try {
             Swarm swarm = this.getSwarm();
@@ -93,7 +93,7 @@ public class DockerApiController {
 
     protected Swarm getSwarm() throws Exception {
         String name = "";
-        ArrayList<String> output = this.getTerminalOutput("docker stack ls --format \"{{.Name}}\"");
+        ArrayList<String> output = this.getTerminalOutput("docker stack ls --format '{{.Name}}'");
 
         if (!output.isEmpty()) {
             name = output.get(0).split(" ")[0];
@@ -103,9 +103,9 @@ public class DockerApiController {
     }
 
     protected ArrayList<Node> getNodes() throws Exception {
-        System.out.println("docker node ls --format \"{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}\"");
+        
         ArrayList<String> output = this.getTerminalOutput(
-                "docker node ls --format \"{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}\"");
+                "docker node ls --format '{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}'");
         ArrayList<Node> nodes = new ArrayList<Node>();
 
         if (!output.isEmpty()) {
@@ -125,7 +125,7 @@ public class DockerApiController {
         if (!swarmName.equals("")) {
 
             String command = String.format("%s %s",
-                    "docker stack services --format \"{{.ID}} {{.Mode}} {{.Replicas}} {{.Image}}\"", swarmName);
+                    "docker stack services --format '{{.ID}} {{.Mode}} {{.Replicas}} {{.Image}}'", swarmName);
 
             ArrayList<String> output = this.getTerminalOutput(command);
 
@@ -142,7 +142,7 @@ public class DockerApiController {
 
     protected ArrayList<Container> getContainers(String serviceID) throws Exception {
         String command = String.format("%s %s %s", "docker service ps", serviceID,
-                "--format \"{{.Name}} {{.Image}} {{.Node}} {{.CurrentState}}\"");
+                "--format '{{.Name}} {{.Image}} {{.Node}} {{.CurrentState}}'");
 
         ArrayList<String> output = this.getTerminalOutput(command);
         ArrayList<String> alreadyFoundContainers = new ArrayList<String>();
