@@ -135,7 +135,7 @@ public class DockerApiController {
 
         if (!swarmName.equals("")) {
 
-            String command = "docker stack services " + swarmName;
+            String command = String.format("%s %s", "docker stack services", swarmName);
             String[] arguments = {"--format '{{.ID}} {{.Mode}} {{.Replicas}} {{.Image}}'"};
             ArrayList<String> output = this.getTerminalOutput(command, arguments);
 
@@ -152,7 +152,7 @@ public class DockerApiController {
 
     protected ArrayList<Container> getContainers(String serviceID) throws Exception {
 
-        String command = "docker service ps " + serviceID;
+        String command = String.format("%s %s", "docker service ps", serviceID);
         String[] arguments = {"--format '{{.Name}} {{.Image}} {{.Node}} {{.CurrentState}}'"};
         ArrayList<String> output = this.getTerminalOutput(command, arguments);
 
