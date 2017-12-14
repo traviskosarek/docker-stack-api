@@ -58,7 +58,7 @@ public class DockerApiController {
     protected ArrayList<String> getTerminalOutput(String command) throws Exception {
         ArrayList<String> output = new ArrayList<String>();
         ArrayList<String> errorOutput = new ArrayList<String>();
-        final Process p = Runtime.getRuntime().exec(command);
+        final Process p = Runtime.getRuntime().exec(command.split(" "));
 
         new Thread(new Runnable() {
             public void run() {
@@ -110,8 +110,8 @@ public class DockerApiController {
 
     protected ArrayList<Node> getNodes() throws Exception {
         
-        ArrayList<String> output = this.getTerminalOutput("docker node ls");
-                // "docker node ls --format '{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}'");
+        ArrayList<String> output = this.getTerminalOutput(
+                "docker node ls --format '{{.ID}} {{.Hostname}} {{.Status}} {{.Availability}} {{.ManagerStatus}}'");
         ArrayList<Node> nodes = new ArrayList<Node>();
 
         if (!output.isEmpty()) {
